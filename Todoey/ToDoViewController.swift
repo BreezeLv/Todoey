@@ -10,7 +10,7 @@ import UIKit
 
 class ToDoViewController: UITableViewController {
 
-    let items = ["Find MyIphone","Buy PS4","Possess a car"]
+    var items = ["Find MyIphone","Buy PS4","Possess a car"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,5 +43,30 @@ class ToDoViewController: UITableViewController {
         }
     }
 
+    @IBAction func AddItemPressed(_ sender: UIBarButtonItem) {
+        let alert = UIAlertController(title: "Add New TODO Item", message: "", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Add Item", style: .cancel) { (action) in
+            //TODO: user add a new item
+            let item = alert.textFields?[0].text
+            if item != nil && item != "" {
+                self.items.append(item!)
+                self.tableView.reloadData()
+            }
+            //Or we can use item ?? "Default Value" to avoid a nil value
+        }
+        
+        //do nothing to opt out ! cause alert view do dismissal automatically
+        let actionOut = UIAlertAction(title: "Cancel", style: .default, handler: nil)
+        
+        alert.addAction(action)
+        alert.addAction(actionOut)
+        alert.addTextField { (txtField) in
+            //doing textfield setup here
+            txtField.placeholder = "Create New Item"
+        }
+        present(alert, animated: true, completion: nil)
+        
+    }
 }
 
