@@ -16,6 +16,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        /*
+         the userdefault saved data goes to directory path return by this method
+         with trailing Library/Preference/your-bundle-identifier.plist
+        */
+        print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true))
+        
         return true
     }
 

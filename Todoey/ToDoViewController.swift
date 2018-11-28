@@ -10,13 +10,17 @@ import UIKit
 
 class ToDoViewController: UITableViewController {
 
+    //Variables
     var items = ["Find MyIphone","Buy PS4","Possess a car"]
+    
+    let defaultData = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        
+        //retrieve saved useful data
+        items = (defaultData.array(forKey: "todoitems") ?? items) as! [String]
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -52,6 +56,9 @@ class ToDoViewController: UITableViewController {
             if item != nil && item != "" {
                 self.items.append(item!)
                 self.tableView.reloadData()
+                
+                //save data after updating/append a new item
+                self.defaultData.set(self.items, forKey: "todoitems")
             }
             //Or we can use item ?? "Default Value" to avoid a nil value
         }
