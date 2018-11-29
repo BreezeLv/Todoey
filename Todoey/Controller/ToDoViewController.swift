@@ -11,7 +11,7 @@ import UIKit
 class ToDoViewController: UITableViewController {
 
     //Variables
-    var items = ["Find MyIphone","Buy PS4","Possess a car"]
+    var items = [Item(title: "Find My Iphone"),Item(title: "Buy PS4")]
     
     let defaultData = UserDefaults.standard
     
@@ -20,12 +20,19 @@ class ToDoViewController: UITableViewController {
         // Do any additional setup after loading the view, typically from a nib.
         
         //retrieve saved useful data
-        items = (defaultData.array(forKey: "todoitems") ?? items) as! [String]
+        //items = (defaultData.array(forKey: "todoitems") ?? items) as! [String]
+        let elemList = (defaultData.array(forKey: "todoitem") ?? [Data]()) as! [Data]
+        if elemList.count > 0 {items = []}
+        for elem in elemList {
+            items.append(try! PropertyListDecoder().decode(Item.self, from: elem))
+        }
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
-        cell.textLabel?.text = items[indexPath.row]
+        cell.textLabel?.text = items[indexPath.row].title
+        
+        cell.accessoryType = items[indexPath.row].checked ? .checkmark : .none
         
         return cell
     }
@@ -40,10 +47,20 @@ class ToDoViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
         let cell = tableView.cellForRow(at: indexPath)
         
-        if cell?.accessoryType == .checkmark {
+        //this method fails when encountering cell reuseage
+//        if cell?.accessoryType == .checkmark {
+//            cell?.accessoryType = .none
+//        } else {
+//            cell?.accessoryType = .checkmark
+//        }
+        
+        //revised method for check mark
+        if items[indexPath.row].checked {
             cell?.accessoryType = .none
+            items[indexPath.row].checked = false
         } else {
             cell?.accessoryType = .checkmark
+            items[indexPath.row].checked = true
         }
     }
 
@@ -52,13 +69,20 @@ class ToDoViewController: UITableViewController {
         
         let action = UIAlertAction(title: "Add Item", style: .cancel) { (action) in
             //TODO: user add a new item
-            let item = alert.textFields?[0].text
-            if item != nil && item != "" {
-                self.items.append(item!)
+            let txt = alert.textFields?[0].text
+            if txt != nil && txt != "" {
+                let item = Item(title: txt!)
+                self.items.append(item)
                 self.tableView.reloadData()
                 
                 //save data after updating/append a new item
-                self.defaultData.set(self.items, forKey: "todoitems")
+                var elemList = [Data]()
+                for elem in self.items {
+                    elemList.append(try! PropertyListEncoder().encode(elem))
+                }
+                
+                self.defaultData.set(elemList, forKey: "todoitem")
+                //self.defaultData.set(self.items, forKey: "todoitems")
             }
             //Or we can use item ?? "Default Value" to avoid a nil value
         }
