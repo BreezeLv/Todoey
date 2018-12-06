@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import GoogleMobileAds
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -21,7 +22,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
          the userdefault saved data goes to directory path return by this method
          with trailing Library/Preference/your-bundle-identifier.plist
         */
-        print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true))
+        //print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true))
+        
+        
+        /*
+         Configure GooleMobileAds Service
+         Initialize GADMobileAds SDK
+         */
+        GADMobileAds.configure(withApplicationID: "ca-app-pub-2954224629393397~3635600322")
+        
         
         return true
     }
