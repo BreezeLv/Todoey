@@ -8,12 +8,20 @@
 
 import UIKit
 import GoogleMobileAds
+import CoreData
 
-class ToDoViewController: UITableViewController {
+class ToDoViewController: UITableViewController, UISearchBarDelegate {
 
-    //Variables
-    var items = [Item(title: "Find My Iphone"),Item(title: "Buy PS4")]
+    //Variables & Constants
+    var items = [Item]() //[Item(title: "Find My Iphone"),Item(title: "Buy PS4")]
+    var category : Category? {
+        didSet {
+            //Will execute as soon as this optional get set
+            retrieveItems()
+        }
+    }
     var bannerView : GADBannerView!
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     //let defaultData = UserDefaults.standard
     
@@ -24,8 +32,8 @@ class ToDoViewController: UITableViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        //retrieve saved useful data
-        retrieveItems()
+        //get the path where we store data for this app
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         
         //initialize and configure BannerAdView
         bannerView = GADBannerView(adSize: kGADAdSizeBanner)
@@ -40,7 +48,7 @@ class ToDoViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         cell.textLabel?.text = items[indexPath.row].title
         
-        cell.accessoryType = items[indexPath.row].checked ? .checkmark : .none
+        cell.accessoryType = items[indexPath.row].done ? .checkmark : .none
         
         return cell
     }
@@ -63,12 +71,13 @@ class ToDoViewController: UITableViewController {
 //        }
         
         //revised method for check mark
-        if items[indexPath.row].checked {
+        if items[indexPath.row].done {
             cell?.accessoryType = .none
-            items[indexPath.row].checked = false
+            items[indexPath.row].done = false
+            //Or use    items[indexPath.row].setValue(false, forKey: "done")
         } else {
             cell?.accessoryType = .checkmark
-            items[indexPath.row].checked = true
+            items[indexPath.row].done = true
         }
         
         //save check status after updating
@@ -79,10 +88,12 @@ class ToDoViewController: UITableViewController {
         let alert = UIAlertController(title: "Add New TODO Item", message: "", preferredStyle: .alert)
         
         let action = UIAlertAction(title: "Add Item", style: .cancel) { (action) in
-            //TODO: user add a new item
             let txt = alert.textFields?[0].text
             if txt != nil && txt != "" {
-                let item = Item(title: txt!)
+                let item = Item(context: self.context)
+                item.title = txt
+                item.done = false
+                item.parentCategory = self.category
                 self.items.append(item)
                 self.tableView.reloadData()
                 
@@ -116,13 +127,22 @@ class ToDoViewController: UITableViewController {
 //       self.defaultData.set(elemList, forKey: "todoitem")
         
         //Self-encoded plist Solution
-        let encoder = PropertyListEncoder()
+//        let encoder = PropertyListEncoder()
+//        do {
+//            let data = try encoder.encode(self.items)
+//            try data.write(to: self.dataFilePath!)
+//            //FileManager.default.contents(atPath: (dataFilePath!.absoluteString))
+//        } catch {
+//            print("Error when encoding data")
+//        }
+        
+        //Core Data Solution
+        //(UIApplication.shared.delegate as! AppDelegate).saveContext()
+        
         do {
-            let data = try encoder.encode(self.items)
-            try data.write(to: self.dataFilePath!)
-            //FileManager.default.contents(atPath: (dataFilePath!.absoluteString))
+            try context.save()
         } catch {
-            print("Error when encoding data")
+            print("Error saving context\(error)")
         }
     }
     
@@ -136,21 +156,66 @@ class ToDoViewController: UITableViewController {
 //        }
         
         //Self-decoded plist Solution
-        let decoder = PropertyListDecoder()
+//        let decoder = PropertyListDecoder()
+//        do {
+//            let data = try Data(contentsOf: dataFilePath!)
+//            items = try decoder.decode([Item].self, from: data)
+//        } catch {
+//            print("Error when decoding data")
+//        }
+        
+        //Core Data Solution
         do {
-            let data = try Data(contentsOf: dataFilePath!)
-            items = try decoder.decode([Item].self, from: data)
+            let request : NSFetchRequest<Item> = Item.fetchRequest()
+            
+            request.predicate = NSPredicate(format: "parentCategory.name == %@", category!.name!)
+            
+            items = try context.fetch(request)
         } catch {
-            print("Error when decoding data")
+            print("Error fetching context\(error)")
         }
     }
     
     
+    //MARK: Search Bar Delegate Method
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        
+        //Another Solution
+        //let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate1,predicate2...])
+        
+        request.predicate = NSPredicate(format: "parentCategory.name == %@ && title CONTAINS[cd] %@", category!.name!, searchBar.text!)
+        
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        do {
+            items = try context.fetch(request)
+            tableView.reloadData()
+        } catch {
+            print("Error fetching context with search\(error)")
+        }
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        print(searchText)
+        if searchText == "" {
+            retrieveItems()
+            tableView.reloadData()
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
+    }
+}
+
+
+//MARK: - BannerAd Methods
+extension ToDoViewController {
     //Add BannerAdView to Current View as a subview and add constraints
     func addBannerToView() {
         bannerView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(bannerView)
-//        let cons = NSLayoutConstraint(item: <#T##Any#>, attribute: <#T##NSLayoutConstraint.Attribute#>, relatedBy: <#T##NSLayoutConstraint.Relation#>, toItem: <#T##Any?#>, attribute: <#T##NSLayoutConstraint.Attribute#>, multiplier: <#T##CGFloat#>, constant: <#T##CGFloat#>)
+        //        let cons = NSLayoutConstraint(item: <#T##Any#>, attribute: <#T##NSLayoutConstraint.Attribute#>, relatedBy: <#T##NSLayoutConstraint.Relation#>, toItem: <#T##Any?#>, attribute: <#T##NSLayoutConstraint.Attribute#>, multiplier: <#T##CGFloat#>, constant: <#T##CGFloat#>)
         view.addConstraints([NSLayoutConstraint(item: bannerView,
                                                 attribute: .bottom,
                                                 relatedBy: .equal,
