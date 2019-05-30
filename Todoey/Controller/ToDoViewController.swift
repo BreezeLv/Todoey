@@ -9,12 +9,15 @@
 import UIKit
 import GoogleMobileAds
 import CoreData
+import RealmSwift
 
 class ToDoViewController: UITableViewController, UISearchBarDelegate {
 
+    let realm = try! Realm()
+    
     //Variables & Constants
-    var items = [Item]() //[Item(title: "Find My Iphone"),Item(title: "Buy PS4")]
-    var category : Category? {
+    var items : Results<ItemR>? //[Item(title: "Find My Iphone"),Item(title: "Buy PS4")]
+    var category : CategoryR? {
         didSet {
             //Will execute as soon as this optional get set
             retrieveItems()
@@ -22,7 +25,6 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
     }
     var bannerView : GADBannerView!
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    
     //let defaultData = UserDefaults.standard
     
     //GET FileDirectoryURLs
@@ -46,15 +48,15 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
-        cell.textLabel?.text = items[indexPath.row].title
+        cell.textLabel?.text = items?[indexPath.row].title ?? "No Item Assigned In \(category!)"
         
-        cell.accessoryType = items[indexPath.row].done ? .checkmark : .none
+        cell.accessoryType = (items?[indexPath.row].done ?? false ? .checkmark : .none)// ?? .none
         
         return cell
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count 
+        return items?.count ?? 1
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -70,18 +72,24 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
 //            cell?.accessoryType = .checkmark
 //        }
         
-        //revised method for check mark
-        if items[indexPath.row].done {
-            cell?.accessoryType = .none
-            items[indexPath.row].done = false
-            //Or use    items[indexPath.row].setValue(false, forKey: "done")
-        } else {
-            cell?.accessoryType = .checkmark
-            items[indexPath.row].done = true
+        if let items = items {
+            //revised method for check mark
+            if items[indexPath.row].done {
+                cell?.accessoryType = .none
+                try! self.realm.write {
+                    items[indexPath.row].done = false
+                }
+                //Or use    items[indexPath.row].setValue(false, forKey: "done")
+            } else {
+                cell?.accessoryType = .checkmark
+                try! self.realm.write {
+                    items[indexPath.row].done = true
+                }
+            }
         }
         
         //save check status after updating
-        saveItems()
+//        saveItems()
     }
 
     @IBAction func AddItemPressed(_ sender: UIBarButtonItem) {
@@ -90,15 +98,27 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
         let action = UIAlertAction(title: "Add Item", style: .cancel) { (action) in
             let txt = alert.textFields?[0].text
             if txt != nil && txt != "" {
-                let item = Item(context: self.context)
-                item.title = txt
-                item.done = false
-                item.parentCategory = self.category
-                self.items.append(item)
-                self.tableView.reloadData()
+                //Core Data Add
+//                let item = Item(context: self.context)
+//                item.title = txt
+//                item.done = false
+//                item.parentCategory = self.category
+//                self.items.append(item)
+//                self.tableView.reloadData()
+//
+//                //save data after updating/appending a new item
+//                self.saveItems()
                 
-                //save data after updating/appending a new item
-                self.saveItems()
+                //Realm Add
+                let item = ItemR()
+                item.title = txt!
+                item.done = false
+                try! self.realm.write {
+                    self.category!.items.append(item)
+                }
+//                self.items.append(item)
+                self.saveItems(withData: item)
+                self.tableView.reloadData()
             }
             //Or we can use item ?? "Default Value" to avoid a nil value
         }
@@ -117,7 +137,7 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
     }
     
     //Data Storage & Retrieve Method
-    func saveItems() {
+    func saveItems(withData data : Object?=nil) {
         
 //      Userdefault Solution
 //       var elemList = [Data]()
@@ -139,10 +159,17 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
         //Core Data Solution
         //(UIApplication.shared.delegate as! AppDelegate).saveContext()
         
-        do {
-            try context.save()
-        } catch {
-            print("Error saving context\(error)")
+//        do {
+//            try context.save()
+//        } catch {
+//            print("Error saving context\(error)")
+//        }
+        
+        //Realm Version
+        if let data = data {
+            try! realm.write {
+                realm.add(data)
+            }
         }
     }
     
@@ -165,35 +192,51 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
 //        }
         
         //Core Data Solution
-        do {
-            let request : NSFetchRequest<Item> = Item.fetchRequest()
-            
-            request.predicate = NSPredicate(format: "parentCategory.name == %@", category!.name!)
-            
-            items = try context.fetch(request)
-        } catch {
-            print("Error fetching context\(error)")
-        }
+//        do {
+//            let request : NSFetchRequest<Item> = Item.fetchRequest()
+//
+//            request.predicate = NSPredicate(format: "parentCategory.name == %@", category!.name!)
+//
+//            items = try context.fetch(request)
+//        } catch {
+//            print("Error fetching context\(error)")
+//        }
+        
+        //Realm Version
+        items = category!.items.sorted(byKeyPath: "title", ascending: true)
+//        items = realm.objects(ItemR.self).filter("ANY parentCategory.name == %@", category!.name)
+//        for obj in realm.objects(ItemR.self).filter("ANY parentCategory.name == %@", category!.name) {
+//            items.append(obj)
+//        }
     }
     
     
     //MARK: Search Bar Delegate Method
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        //Core Data Version
+//        let request : NSFetchRequest<Item> = Item.fetchRequest()
         
         //Another Solution
         //let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate1,predicate2...])
         
-        request.predicate = NSPredicate(format: "parentCategory.name == %@ && title CONTAINS[cd] %@", category!.name!, searchBar.text!)
+//        request.predicate = NSPredicate(format: "parentCategory.name == %@ && title CONTAINS[cd] %@", category!.name!, searchBar.text!)
+//
+//        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+//
+//        do {
+//            items = try context.fetch(request)
+//            tableView.reloadData()
+//        } catch {
+//            print("Error fetching context with search\(error)")
+//        }
         
-        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        
-        do {
-            items = try context.fetch(request)
-            tableView.reloadData()
-        } catch {
-            print("Error fetching context with search\(error)")
-        }
+        //Realm Version
+        items = category!.items.filter("ANY parentCategory.name == %@ && title CONTAINS[cd] %@", category!.name, searchBar.text!).sorted(byKeyPath: "title", ascending: true)
+//        items = realm.objects(ItemR.self).filter("ANY parentCategory.name == %@ && title CONTAINS[cd] %@", category!.name, searchBar.text!)
+//        for obj in realm.objects(ItemR.self).filter("ANY parentCategory.name == %@ && title CONTAINS[cd] %@", category!.name, searchBar.text!) {
+//            items.append(obj)
+//        }
+        tableView.reloadData()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {

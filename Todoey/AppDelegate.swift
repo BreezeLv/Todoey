@@ -9,6 +9,7 @@
 import UIKit
 import GoogleMobileAds
 import CoreData
+import RealmSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -32,6 +33,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
          */
         GADMobileAds.configure(withApplicationID: "ca-app-pub-2954224629393397~3635600322")
         
+        /*
+         Like any disk I/O operation, creating a Realm instance could sometimes fail if resources are constrained. In practice, this can only happen the first time a Realm instance is created on a given thread. Subsequent accesses to a Realm from the same thread will reuse a cached instance and will always succeed.
+         */
+        do {
+            let realm = try Realm()
+            print(realm.configuration.fileURL!)
+        } catch let error as NSError {
+            // handle error
+            print("Realm Creating Error: \(error)")
+        }
         
         return true
     }

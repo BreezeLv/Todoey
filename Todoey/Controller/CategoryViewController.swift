@@ -8,13 +8,15 @@
 
 import UIKit
 import CoreData
+import RealmSwift
 
 class CategoryViewController: UITableViewController {
 
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    var categories : [Category] = []
+    var categories : Results<CategoryR>?
     
+    let realm = try! Realm()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,13 +34,13 @@ class CategoryViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return categories.count
+        return categories?.count ?? 1
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        cell.textLabel?.text = categories[indexPath.row].name
+        cell.textLabel?.text = categories?[indexPath.row].name ?? "No Category Created"
         
         return cell
     }
@@ -46,8 +48,8 @@ class CategoryViewController: UITableViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let destVC = segue.destination as! ToDoViewController
-        if let selectedRow = tableView.indexPathForSelectedRow?.row {
-            destVC.category = categories[selectedRow]
+        if let selectedRow = tableView.indexPathForSelectedRow?.row, let categ = categories {
+            destVC.category = categ[selectedRow]
         }
     }
     
@@ -103,13 +105,22 @@ class CategoryViewController: UITableViewController {
             let txt = alert.textFields?[0].text
             if txt != nil && txt != "" {
                 //Add a new entry to entity
-                let cat = Category(context: self.context)
-                cat.name = txt!
-                self.categories.append(cat)
-                self.tableView.reloadData()
                 
-                //save data after updating/appending a new item
-                self.SaveData()
+                //MARK: Core Data Add Category
+//                let cat = Category(context: self.context)
+//                cat.name = txt!
+//                self.categories.append(cat)
+//                self.tableView.reloadData()
+//
+//                //save data after updating/appending a new item
+//                self.SaveData()
+                
+                //MARK: Realm Add Category
+                let cat = CategoryR()
+                cat.name = txt!
+//                self.categories.append(cat)
+                self.SaveData(withData: cat) //after write, result<category> object will auto-update !!
+                self.tableView.reloadData()
             }
             //Or we can use item ?? "Default Value" to avoid a nil value
         }
@@ -129,21 +140,37 @@ class CategoryViewController: UITableViewController {
     
     //Data Retrieve
     func RetrieveData() {
-        do {
-            let request : NSFetchRequest<Category> = Category.fetchRequest()
-            categories = try context.fetch(request)
-        } catch {
-            categories = []
-            print("Error fetching Category Data\(error)")
-        }
+        //Core Data Retrieve
+//        do {
+//            let request : NSFetchRequest<Category> = Category.fetchRequest()
+//            categories = try context.fetch(request)
+//        } catch {
+//            categories = []
+//            print("Error fetching Category Data\(error)")
+//        }
+        
+        //Realm Retrieve
+        categories = realm.objects(CategoryR.self)
+//        for obj in realm.objects(CategoryR.self) {
+//            categories.append(obj)
+//        }
     }
 
     //Data Save
-    func SaveData() {
-        do {
-          try context.save()
-        } catch {
-            print("Error Saving Category Data\(error)")
+    func SaveData(withData data : Object?=nil) {
+        //Core Data Save
+//        do {
+//          try context.save()
+//        } catch {
+//            print("Error Saving Category Data\(error)")
+//        }
+        
+        //Realm Save
+        // Add to the Realm inside a transaction
+        if let data = data {
+            try! realm.write {
+                realm.add(data)
+            }
         }
     }
 }

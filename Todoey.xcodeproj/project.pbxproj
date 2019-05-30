@@ -16,6 +16,8 @@
 		C29D274B21AE352800FE1609 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C29D274A21AE352800FE1609 /* Assets.xcassets */; };
 		C29D274E21AE352800FE1609 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C29D274C21AE352800FE1609 /* LaunchScreen.storyboard */; };
 		C2FAD73321C0DCC3000C8E84 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C2FAD73121C0DCC3000C8E84 /* DataModel.xcdatamodeld */; };
+		C2FB744B229FE19C0076D577 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FB744A229FE19C0076D577 /* Category.swift */; };
+		C2FB744D229FE1E10076D577 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FB744C229FE1E10076D577 /* Item.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +33,8 @@
 		C29D274D21AE352800FE1609 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C29D274F21AE352800FE1609 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C2FAD73221C0DCC3000C8E84 /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
+		C2FB744A229FE19C0076D577 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		C2FB744C229FE1E10076D577 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		E2D7782682A5F3644078373A /* Pods_Todoey.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Todoey.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -98,6 +102,8 @@
 			isa = PBXGroup;
 			children = (
 				C2FAD73121C0DCC3000C8E84 /* DataModel.xcdatamodeld */,
+				C2FB744A229FE19C0076D577 /* Category.swift */,
+				C2FB744C229FE1E10076D577 /* Item.swift */,
 			);
 			path = DataModel;
 			sourceTree = "<group>";
@@ -255,7 +261,9 @@
 				C29D274621AE352500FE1609 /* ToDoViewController.swift in Sources */,
 				C2FAD73321C0DCC3000C8E84 /* DataModel.xcdatamodeld in Sources */,
 				C29D274421AE352500FE1609 /* AppDelegate.swift in Sources */,
+				C2FB744D229FE1E10076D577 /* Item.swift in Sources */,
 				C22E1A7B21B9063F009D82D7 /* MainViewBannerAdDelegate.swift in Sources */,
+				C2FB744B229FE19C0076D577 /* Category.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
