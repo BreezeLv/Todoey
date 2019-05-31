@@ -113,6 +113,7 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
                 let item = ItemR()
                 item.title = txt!
                 item.done = false
+                item.date = Date()
                 try! self.realm.write {
                     self.category!.items.append(item)
                 }
@@ -231,7 +232,10 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
 //        }
         
         //Realm Version
-        items = category!.items.filter("ANY parentCategory.name == %@ && title CONTAINS[cd] %@", category!.name, searchBar.text!).sorted(byKeyPath: "title", ascending: true)
+        /*
+         Collections may only be sorted by properties of boolean, Date, NSDate, single and double-precision floating point, integer, and string types.
+         */
+        items = category!.items.filter("ANY parentCategory.name == %@ && title CONTAINS[cd] %@", category!.name, searchBar.text!).sorted(byKeyPath: "date", ascending: true)
 //        items = realm.objects(ItemR.self).filter("ANY parentCategory.name == %@ && title CONTAINS[cd] %@", category!.name, searchBar.text!)
 //        for obj in realm.objects(ItemR.self).filter("ANY parentCategory.name == %@ && title CONTAINS[cd] %@", category!.name, searchBar.text!) {
 //            items.append(obj)
@@ -262,8 +266,8 @@ extension ToDoViewController {
         view.addConstraints([NSLayoutConstraint(item: bannerView,
                                                 attribute: .bottom,
                                                 relatedBy: .equal,
-                                                toItem: bottomLayoutGuide,
-                                                attribute: .top,
+                                                toItem: view.safeAreaLayoutGuide,
+                                                attribute: .bottom,
                                                 multiplier: 1,
                                                 constant: 0),
                              NSLayoutConstraint(item: bannerView,
