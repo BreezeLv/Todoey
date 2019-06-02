@@ -31,8 +31,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
          Configure GooleMobileAds Service
          Initialize GADMobileAds SDK
          */
-        GADMobileAds.configure(withApplicationID: "ca-app-pub-2954224629393397~3635600322")
-        
+//        GADMobileAds.configure(withApplicationID: "ca-app-pub-2954224629393397~3635600322")
+        GADMobileAds.sharedInstance().start { (status) in
+            print("GAD Init Status:\(status)")
+        }
         /*
          Like any disk I/O operation, creating a Realm instance could sometimes fail if resources are constrained. In practice, this can only happen the first time a Realm instance is created on a given thread. Subsequent accesses to a Realm from the same thread will reuse a cached instance and will always succeed.
          */

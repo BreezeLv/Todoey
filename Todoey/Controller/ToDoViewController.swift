@@ -16,7 +16,7 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
     let realm = try! Realm()
     
     //Variables & Constants
-    var items : Results<ItemR>? //[Item(title: "Find My Iphone"),Item(title: "Buy PS4")]
+    var items : Results<ItemR>?
     var category : CategoryR? {
         didSet {
             //Will execute as soon as this optional get set
@@ -35,7 +35,7 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
         // Do any additional setup after loading the view, typically from a nib.
         
         //get the path where we store data for this app
-        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
+//        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         
         //initialize and configure BannerAdView
         bannerView = GADBannerView(adSize: kGADAdSizeBanner)
@@ -263,14 +263,14 @@ extension ToDoViewController {
         bannerView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(bannerView)
         //        let cons = NSLayoutConstraint(item: <#T##Any#>, attribute: <#T##NSLayoutConstraint.Attribute#>, relatedBy: <#T##NSLayoutConstraint.Relation#>, toItem: <#T##Any?#>, attribute: <#T##NSLayoutConstraint.Attribute#>, multiplier: <#T##CGFloat#>, constant: <#T##CGFloat#>)
-        view.addConstraints([NSLayoutConstraint(item: bannerView,
+        view.addConstraints([NSLayoutConstraint(item: bannerView as Any,
                                                 attribute: .bottom,
                                                 relatedBy: .equal,
                                                 toItem: view.safeAreaLayoutGuide,
                                                 attribute: .bottom,
                                                 multiplier: 1,
                                                 constant: 0),
-                             NSLayoutConstraint(item: bannerView,
+                             NSLayoutConstraint(item: bannerView as Any,
                                                 attribute: .centerX,
                                                 relatedBy: .equal,
                                                 toItem: view,

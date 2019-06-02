@@ -9,5 +9,6 @@ target 'Todoey' do
 
     pod 'Google-Mobile-Ads-SDK'
     pod 'RealmSwift'
+    pod 'SwipeCellKit'
 
 end
