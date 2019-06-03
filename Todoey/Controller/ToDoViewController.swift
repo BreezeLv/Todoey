@@ -10,8 +10,9 @@ import UIKit
 import GoogleMobileAds
 import CoreData
 import RealmSwift
+import SwipeCellKit
 
-class ToDoViewController: UITableViewController, UISearchBarDelegate {
+class ToDoViewController: SwipeViewController, UISearchBarDelegate {
 
     let realm = try! Realm()
     
@@ -47,9 +48,9 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
-        cell.textLabel?.text = items?[indexPath.row].title ?? "No Item Assigned In \(category!)"
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
+        cell.textLabel?.text = items?[indexPath.row].title ?? "No Item Assigned In \(category!)"
         cell.accessoryType = (items?[indexPath.row].done ?? false ? .checkmark : .none)// ?? .none
         
         return cell
@@ -90,6 +91,24 @@ class ToDoViewController: UITableViewController, UISearchBarDelegate {
         
         //save check status after updating
 //        saveItems()
+    }
+    
+    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
+        guard orientation == .right else { return nil }
+        
+        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
+            // handle action by updating model with deletion
+            if let item = self.items?[indexPath.row] {
+                try! self.realm.write {
+                    self.realm.delete(item)
+                }
+            }
+        }
+        
+        // customize the action appearance
+        deleteAction.image = #imageLiteral(resourceName: "icons8-trash-50")
+        
+        return [deleteAction]
     }
 
     @IBAction func AddItemPressed(_ sender: UIBarButtonItem) {

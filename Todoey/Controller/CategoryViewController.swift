@@ -9,11 +9,10 @@
 import UIKit
 import CoreData
 import RealmSwift
-//import SwipeCellKit
+import SwipeCellKit
 
-class CategoryViewController: UITableViewController {
+class CategoryViewController: SwipeViewController {
 
-    
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var categories : Results<CategoryR>?
     
@@ -39,8 +38,7 @@ class CategoryViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categories?[indexPath.row].name ?? "No Category Created"
         
         return cell
@@ -58,6 +56,23 @@ class CategoryViewController: UITableViewController {
         performSegue(withIdentifier: "goToItems", sender: self)
     }
 
+    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
+        guard orientation == .right else { return nil }
+        
+        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
+            // handle action by updating model with deletion
+            if let category = self.categories?[indexPath.row] {
+                try! self.realm.write {
+                    self.realm.delete(category)
+                }
+            }
+        }
+        
+        // customize the action appearance
+        deleteAction.image = #imageLiteral(resourceName: "icons8-trash-50")
+        
+        return [deleteAction]
+    }
     
     
     /*
@@ -84,16 +99,6 @@ class CategoryViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         // Return false if you do not want the item to be re-orderable.
         return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
     }
     */
     
