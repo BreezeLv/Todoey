@@ -12,5 +12,5 @@ import RealmSwift
 class CategoryR : Object {
     @objc dynamic var name : String = ""
     let items = List<ItemR>()
-    
+    @objc dynamic var bgcolor : String = UIColor.white.hexValue()
 }

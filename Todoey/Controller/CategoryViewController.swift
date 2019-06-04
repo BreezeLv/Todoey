@@ -10,6 +10,7 @@ import UIKit
 import CoreData
 import RealmSwift
 import SwipeCellKit
+import ChameleonFramework
 
 class CategoryViewController: SwipeViewController {
 
@@ -23,11 +24,6 @@ class CategoryViewController: SwipeViewController {
 
         RetrieveData()
         
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
 
     // MARK: - Table view data source
@@ -40,6 +36,7 @@ class CategoryViewController: SwipeViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categories?[indexPath.row].name ?? "No Category Created"
+        cell.backgroundColor = UIColor(hexString: categories?[indexPath.row].bgcolor ?? "#ffffff")
         
         return cell
     }
@@ -75,34 +72,6 @@ class CategoryViewController: SwipeViewController {
     }
     
     
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-    
-    
     //Add Action
     @IBAction func AddCategoryPressed(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Add a Category", message: "", preferredStyle: .alert)
@@ -124,6 +93,7 @@ class CategoryViewController: SwipeViewController {
                 //MARK: Realm Add Category
                 let cat = CategoryR()
                 cat.name = txt!
+                cat.bgcolor = RandomFlatColor().hexValue()
 //                self.categories.append(cat)
                 self.SaveData(withData: cat) //after write, result<category> object will auto-update !!
                 self.tableView.reloadData()

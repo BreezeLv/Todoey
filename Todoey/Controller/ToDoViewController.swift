@@ -11,6 +11,7 @@ import GoogleMobileAds
 import CoreData
 import RealmSwift
 import SwipeCellKit
+import ChameleonFramework
 
 class ToDoViewController: SwipeViewController, UISearchBarDelegate {
 
@@ -52,6 +53,12 @@ class ToDoViewController: SwipeViewController, UISearchBarDelegate {
         
         cell.textLabel?.text = items?[indexPath.row].title ?? "No Item Assigned In \(category!)"
         cell.accessoryType = (items?[indexPath.row].done ?? false ? .checkmark : .none)// ?? .none
+        
+        //By applying color-darken method, make a maunal graident effects in to-do item list
+        if let baseColor = UIColor(hexString: items?[indexPath.row].parentCategory[0].bgcolor ?? "#ffffff") {
+            cell.backgroundColor = baseColor.darken(byPercentage:  CGFloat(indexPath.row)/CGFloat(items!.count))
+            cell.textLabel?.textColor = ContrastColorOf(cell.backgroundColor!, returnFlat: true)
+        }
         
         return cell
     }
@@ -133,6 +140,7 @@ class ToDoViewController: SwipeViewController, UISearchBarDelegate {
                 item.title = txt!
                 item.done = false
                 item.date = Date()
+                item.bgcolor = RandomFlatColor().hexValue()
                 try! self.realm.write {
                     self.category!.items.append(item)
                 }

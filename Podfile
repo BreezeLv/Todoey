@@ -10,5 +10,6 @@ target 'Todoey' do
     pod 'Google-Mobile-Ads-SDK'
     pod 'RealmSwift'
     pod 'SwipeCellKit'
+    pod 'ChameleonFramework/Swift', :git => 'https://github.com/ViccAlexander/Chameleon.git'
 
 end

@@ -28,6 +28,7 @@ class ItemR : Object {
     @objc dynamic var title : String = ""
     @objc dynamic var date : Date?
     let parentCategory = LinkingObjects(fromType: CategoryR.self, property: "items")
+    @objc dynamic var bgcolor : String = UIColor.white.hexValue()
 }
 
 //class Item : Codable {
