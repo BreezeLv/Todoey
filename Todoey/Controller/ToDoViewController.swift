@@ -28,6 +28,7 @@ class ToDoViewController: SwipeViewController, UISearchBarDelegate {
     var bannerView : GADBannerView!
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     //let defaultData = UserDefaults.standard
+    @IBOutlet var searchBar: UISearchBar!
     
     //GET FileDirectoryURLs
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
@@ -46,6 +47,16 @@ class ToDoViewController: SwipeViewController, UISearchBarDelegate {
         bannerView.delegate = self
         
         bannerView.load(GADRequest())
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        guard let navbar = navigationController?.navigationBar else {fatalError("Navbar doesn't exist")}
+        navbar.barTintColor = UIColor(hexString: category?.bgcolor ?? "#ffffff")
+        navbar.tintColor = ContrastColorOf(navbar.barTintColor!, returnFlat: true)
+        navbar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : navbar.tintColor!]
+        title = category?.name;
+        
+        searchBar.barTintColor = UIColor(hexString: category?.bgcolor ?? "#ffffff")
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

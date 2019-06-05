@@ -46,12 +46,14 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Items" id="kWo-y8-g6L">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="slk-Eq-J9W">
-                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
                                 <action selector="AddItemPressed:" destination="Ime-8U-5ER" id="90e-GB-FDu"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <outlet property="searchBar" destination="3UY-Av-gFZ" id="ykW-F0-mhv"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Lf7-ph-j9D" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -62,8 +64,8 @@
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="FpD-Mx-ZCl" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Ku9-N0-neh">
-                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" largeTitles="YES" id="Ku9-N0-neh">
+                        <rect key="frame" x="0.0" y="20" width="375" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="barTintColor" red="0.69478524913260764" green="0.80231790605366105" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <textAttributes key="titleTextAttributes">
@@ -106,7 +108,6 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Todoey" id="hUY-oj-YQ6">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="FVk-rX-hHi">
-                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
                                 <action selector="AddCategoryPressed:" destination="Ffn-NL-DU5" id="0au-h4-iPi"/>
                             </connections>

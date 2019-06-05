@@ -25,6 +25,15 @@ class CategoryViewController: SwipeViewController {
         RetrieveData()
         
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        guard let navbar = navigationController?.navigationBar else {fatalError("Navbar doesn't exist")}
+        navbar.barTintColor = FlatLime()
+        navbar.tintColor = ContrastColorOf(navbar.barTintColor!, returnFlat: true)
+        navbar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : navbar.tintColor!]
+    }
 
     // MARK: - Table view data source
 
@@ -37,6 +46,7 @@ class CategoryViewController: SwipeViewController {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categories?[indexPath.row].name ?? "No Category Created"
         cell.backgroundColor = UIColor(hexString: categories?[indexPath.row].bgcolor ?? "#ffffff")
+        cell.textLabel?.textColor = ContrastColorOf(cell.backgroundColor!, returnFlat: true)
         
         return cell
     }
